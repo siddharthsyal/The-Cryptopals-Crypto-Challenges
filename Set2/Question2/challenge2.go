@@ -42,13 +42,13 @@ func cbcDecrypt(ciphertext,key[]byte)([]byte){
 }
 
 func main(){
+	key := []byte("YELLOW SUBMARINE")
 	filename := "challenge2_file.txt"
 	filecontent,err := ioutil.ReadFile(filename)
 	if err!= nil{
 		fmt.Println("File Error")
 		os.Exit(1)
-	}
-	key := []byte("YELLOW SUBMARINE")
+	}	
 	ciphertext,_ := base64.StdEncoding.DecodeString(string(filecontent))
 	fmt.Println(string(cbcDecrypt(ciphertext,key)))
 }
