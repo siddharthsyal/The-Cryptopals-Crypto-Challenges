@@ -14,7 +14,7 @@ func paddingPKCS7(plainText []byte , blockSize int) []byte{
 }
 
 func main(){
-	plainText := "YELLOW SUBMARINE"
 	blockSize := 20
+	plainText := "YELLOW SUBMARINE"	
 	fmt.Println(paddingPKCS7([]byte(plainText),blockSize))
 }
