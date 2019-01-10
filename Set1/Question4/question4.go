@@ -8,7 +8,6 @@ import (
 	"math"
 	"os"
 	"strings"
-	"unicode/utf8"
 )
 func xorBytes(input []byte, key []byte)(string){
 	result_buffer := make([]byte, len(input))
@@ -24,9 +23,7 @@ func xorBytes(input []byte, key []byte)(string){
 	return string(result_buffer)
 }
 
-var idealFreqs = []float64{
-	8.12, 1.49, 2.71, 4.32, 12.02, 2.30, 2.03, 5.92, 7.31, 0.10, 0.69, 3.98, 2.61,
-	6.95,7.68, 1.82, 0.11, 6.02, 6.28, 9.10, 2.88, 1.11, 2.09,0.17, 2.11, 0.07}
+var idealFreqs = []float64{	.08167, .01492, .02792, .04253, .12702, .0228, .02015, .06094, .06966, .0153, .0772, .04025, .02406, .06749, .07507, .01929, .0095, .05987, .06327, .09056, .02758, .00978, .02360, .00150, .01974, .0074,0.23200}
 
 func HexDecode(input []byte)([]byte){
 	cipherText := make([]byte,hex.DecodedLen(len(input)))
@@ -54,27 +51,35 @@ func bruteForce(input []byte)(byte, string,float64){
 	return key,msg,low
 }
 
-func chiSquare(counter []float64)(float64){
-	var score,buffer float64
-	for i,val := range counter{
-		buffer = math.Pow((val-idealFreqs[i]),2)
-		buffer = buffer/idealFreqs[i]
-		score += buffer
-	}
-	return score
-}
 func getScore(input string)(float64){
-	input = strings.ToLower(input)
-	counter := make([]float64,26)
-	for _,ch := range input{
+	input_buffer := strings.ToLower(input)
+	counter := make([]float64,27)
+	total :=0
+	for _,ch := range input_buffer{
 		if 'a'<=ch&&ch<='z'{
-			counter[int(ch)-97]++
+			counter[int(ch)-int('a')]++
+			total++
+		}
+		if int(ch) == 32{
+			total++
+			counter[26]++
 		}
 	}
 	for i,val := range counter{
-		counter[i]=val/float64(utf8.RuneCountInString(input))
+		counter[i]=val/float64(total)
 	}
-	score := chiSquare(counter)
+	score := chiSquare(counter,float64(len(input)))
+	return score
+}
+func chiSquare(counter []float64,total float64)(float64){
+	score := 0.0
+	var buffer float64
+	for i,_ := range counter{
+		expected := total*idealFreqs[i]
+		buffer1 := math.Pow(counter[i]-expected,2)
+		buffer = buffer1/(expected)
+		score =score+ buffer
+	}
 	return score
 }
 
