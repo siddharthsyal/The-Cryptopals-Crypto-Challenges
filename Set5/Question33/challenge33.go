@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/rand"
+	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
@@ -76,12 +77,17 @@ func pubkeyBob(p,g *big.Int)(*big.Int,*big.Int){
 	return pubKey,bobSecret
 }
 
+func getHash(buffer *big.Int) [20]byte{
+	return sha1.Sum(buffer.Bytes())
+}
+
 func generateSymmetricKey(pubAlice,pubBob,secretBob,secretAlice,p *big.Int){
 	alice_key := squareANDmultiply(pubBob,secretAlice,p)
 	bob_key := squareANDmultiply(pubAlice,secretBob,p)
 	if alice_key.Cmp(bob_key)==0{
 		fmt.Println("Successful DHE")
 	}
+	fmt.Printf("Symetteric Key = %x",getHash(alice_key))
 	return
 }
 
