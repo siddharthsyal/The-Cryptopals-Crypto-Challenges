@@ -1,4 +1,4 @@
-package main
+package DHE
 
 import (
 	"crypto/rand"
@@ -65,41 +65,25 @@ func randomNumber(bitSize int)(*big.Int){
 	return number
 }
 
-func pubkeyAlice(p,g *big.Int)(*big.Int,*big.Int){
-	aliceSecret := randomNumber(1024)
-	pubKey := squareANDmultiply(g,aliceSecret,p)
-	return pubKey,aliceSecret
+
+func getHash(buffer *big.Int) []byte{
+	result := sha1.Sum(buffer.Bytes())
+	return (result[:16])// AES Key Size = 16
 }
 
-func pubkeyBob(p,g *big.Int)(*big.Int,*big.Int){
-	bobSecret := randomNumber(1024)
-	pubKey := squareANDmultiply(g,bobSecret,p)
-	return pubKey,bobSecret
+func generateSymmetricKey(pub,secret, p *big.Int)[]byte{
+	result := squareANDmultiply(pub,secret,p)
+	return getHash(result)
 }
 
-func getHash(buffer *big.Int) [20]byte{
-	return sha1.Sum(buffer.Bytes())
+func HexDecode(data []byte)[]byte{
+	result := make([]byte, hex.DecodedLen(len(data)))
+	hex.Decode(result,data)
+	return result
 }
 
-func generateSymmetricKey(pubAlice,pubBob,secretBob,secretAlice,p *big.Int){
-	alice_key := squareANDmultiply(pubBob,secretAlice,p)
-	bob_key := squareANDmultiply(pubAlice,secretBob,p)
-	if alice_key.Cmp(bob_key)==0{
-		fmt.Println("Successful DHE")
-	}
-	fmt.Printf("Symetteric Key = %x",getHash(alice_key))
-	return
-}
-
-func main(){
-	filename := "value_p.txt"
-	p_hex := getP(filename)
-	p_unhex := make([]byte,hex.DecodedLen(len(p_hex)))
-	hex.Decode(p_unhex,p_hex)
-	p := new(big.Int)
-	p.SetBytes(p_unhex)
-	g := big.NewInt(int64(2))
-	pubAlice,secretAlice :=pubkeyAlice(p,g)
-	pubBob,secretBob :=pubkeyBob(p,g)
-	generateSymmetricKey(pubAlice,pubBob,secretBob,secretAlice,p)
+func HexEncode(data []byte)[]byte{
+	result := make([]byte, hex.EncodedLen(len(data)))
+	hex.Encode(result,data)
+	return result
 }
