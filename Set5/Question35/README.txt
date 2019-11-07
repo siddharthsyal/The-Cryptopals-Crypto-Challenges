@@ -16,7 +16,7 @@ B->A
 Do the MITM attack again, but play with "g". What happens with:
 
     g = 1 (PART 1)
-    g = p
-    g = p - 1
+    g = p (PART 2)
+    g = p - 1 (PART 3)
 
 Write attacks for each. 
